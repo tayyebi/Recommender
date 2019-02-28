@@ -1,6 +1,0 @@
-https://www.researchgate.net/publication/304742521_CSV_dataset_of_76000_quotes_suitable_for_quotes_recommender_systems_or_other_analysis
-
-
-https://www.kaggle.com/akmittal/quotes-dataset#quotes.json
-
-
