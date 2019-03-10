@@ -8,7 +8,7 @@ $db = 'recommender';
 $conn = mysqli_connect($dbhost, $dbuser, $dbpass, $db);
 
 if(! $conn ) {
-  die('Could not connect: ' . mysqli_error());
+  die('Could not connect: ' . mysqli_error($conn));
 }
 
 
@@ -32,7 +32,7 @@ foreach(array_keys($_GET) as $key)
     $retval = mysqli_query( $conn, $sql );
 
     if(! $retval ) {
-      die('Could not insert data: ' . mysqli_error());
+      die('Could not insert data: ' . mysqli_error($conn));
     }
   }
 }
@@ -109,11 +109,51 @@ foreach(array_keys($_GET) as $key)
     <main class="container">
       <div class="list-group">
 <?php
-$sql = 'SELECT * FROM posts limit 100';
+$sql = '
+
+select *, count(*) as ccount from
+(
+SELECT posts.*, inter.userId FROM inter RIGHT OUTER JOIN posts on inter.postId = posts.Id
+) A
+WHERE A.userId NOT IN (' . $_GET['User'] . ')
+group by A.Id, A.From, A.Content, A.Category, A.userId
+order by ccount desc
+limit 100
+
+
+';
 $retval = mysqli_query( $conn, $sql );
 
 if(! $retval ) {
-  die('Could not get data: ' . mysqli_error());
+  die('Could not get data: ' . mysqli_error($conn));
+}
+
+while($row = mysqli_fetch_assoc($retval)) {
+
+echo '<form method="get" href="#" class="list-group-item list-group-item-action flex-column align-items-start active">
+<div class="d-flex w-100 justify-content-between">
+  <h5 class="mb-1">' . $row['Category'] . '</h5>
+  <small>Id: ' . $row['Id'] . ' count: ' . $row['ccount'] . '</small>
+</div>
+<p class="mb-1">' . $row['Content'] . '</p>
+<small>' . $row['From'] . '</small>
+<input name="User" type="hidden" value="' . $_GET['User'] . '" />
+<input value="' . 'Like' . '" type="submit" name="form-operation-like-' . $row['Id'] . '" href="#" class="btn btn-lg btn-danger" />
+</form>';
+}
+?>
+<hr/>
+<h1 class="h1">Explore.</h1>
+<?php
+$sql = '
+
+select * from posts limit 100
+
+';
+$retval = mysqli_query( $conn, $sql );
+
+if(! $retval ) {
+  die('Could not get data: ' . mysqli_error($conn));
 }
 
 while($row = mysqli_fetch_assoc($retval)) {
@@ -126,10 +166,11 @@ echo '<form method="get" href="#" class="list-group-item list-group-item-action 
 <p class="mb-1">' . $row['Content'] . '</p>
 <small>' . $row['From'] . '</small>
 <input name="User" type="hidden" value="' . $_GET['User'] . '" />
-<input value="' . 'Liked' . '" type="submit" name="form-operation-like-' . $row['Id'] . '" href="#" class="btn btn-lg btn-danger" />
+<input value="' . 'Like' . '" type="submit" name="form-operation-like-' . $row['Id'] . '" href="#" class="btn btn-lg btn-danger" />
 </form>';
 }
 ?>
+
       </div>
     </main>
 
