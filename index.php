@@ -8,7 +8,33 @@ $db = 'recommender';
 $conn = mysqli_connect($dbhost, $dbuser, $dbpass, $db);
 
 if(! $conn ) {
-  die('Could not connect: ' . mysql_error());
+  die('Could not connect: ' . mysqli_error());
+}
+
+
+class Functionalities{
+  public static function IfStringStartsWith($key, $query)
+  {
+      $query_lenght = strlen($query);
+      $key_lenght = strlen($key);
+      if (substr($key, 0, $query_lenght) === $query)
+        return substr($key, $query_lenght, $key_lenght);
+      return false;
+  }
+}
+
+foreach(array_keys($_GET) as $key)
+{
+  $form_like = Functionalities::IfStringStartsWith($key, 'form-operation-like-');
+  if ($form_like)
+  {
+    $sql = "INSERT INTO `inter` (postId, userId) values ('" . $form_like . "', '" . $_GET['User'] . "')";
+    $retval = mysqli_query( $conn, $sql );
+
+    if(! $retval ) {
+      die('Could not insert data: ' . mysqli_error());
+    }
+  }
 }
 
 ?>
@@ -56,7 +82,7 @@ if(! $conn ) {
             </ul>
             <ul class="nav navbar-nav navbar-right">
               <li class="active"><a href="./">Use recommender <span class="sr-only">(current)</span></a></li>
-              <li><a href="../navbar-static-top/">Show last</a></li>
+              <!-- <li><a href="?use_recommender=false">Show last</a></li> -->
             </ul>
           </div>
         </div>
@@ -87,20 +113,21 @@ $sql = 'SELECT * FROM posts limit 100';
 $retval = mysqli_query( $conn, $sql );
 
 if(! $retval ) {
-  die('Could not get data: ' . mysql_error());
+  die('Could not get data: ' . mysqli_error());
 }
 
 while($row = mysqli_fetch_assoc($retval)) {
 
-echo '<div href="#" class="list-group-item list-group-item-action flex-column align-items-start">
+echo '<form method="get" href="#" class="list-group-item list-group-item-action flex-column align-items-start">
 <div class="d-flex w-100 justify-content-between">
   <h5 class="mb-1">' . $row['Category'] . '</h5>
   <small>Id: ' . $row['Id'] . '</small>
 </div>
 <p class="mb-1">' . $row['Content'] . '</p>
 <small>' . $row['From'] . '</small>
-<a href="#" class="btn btn-lg btn-danger">Liked</a>
-</div>';
+<input name="User" type="hidden" value="' . $_GET['User'] . '" />
+<input value="' . 'Liked' . '" type="submit" name="form-operation-like-' . $row['Id'] . '" href="#" class="btn btn-lg btn-danger" />
+</form>';
 }
 ?>
       </div>
