@@ -1,3 +1,18 @@
+<?php
+
+$dbhost = 'localhost';
+$dbuser = 'root';
+$dbpass = '123';
+$db = 'recommender';
+
+$conn = mysqli_connect($dbhost, $dbuser, $dbpass, $db);
+
+if(! $conn ) {
+  die('Could not connect: ' . mysql_error());
+}
+
+?>
+
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -53,39 +68,41 @@
         <p>
           <a class="btn btn-lg btn-primary" href="https://en.wikipedia.org/wiki/Recommender_system" role="button">Read more &raquo;</a>
         </p>
+        <form class="form-inline">
+          <select class="form-control" name="User">
+            <option value="1">Rexa</option>
+            <option value="2">Abbas</option>
+            <option value="3">Shaghayegh</option>
+            <option value="4">Administrator</option>
+          </select>
+          <input class="form-control" type="submit" value="Change user (FAKE LOGIN)" />
+        </form>
       </div>
-
     </div>
 
     <main class="container">
       <div class="list-group">
-        <div href="#" class="list-group-item list-group-item-action flex-column align-items-start active">
-          <div class="d-flex w-100 justify-content-between">
-            <h5 class="mb-1">List group item heading</h5>
-            <small>3 days ago</small>
-          </div>
-          <p class="mb-1">Donec id elit non mi porta gravida at eget metus. Maecenas sed diam eget risus varius blandit.</p>
-          <small>Donec id elit non mi porta.</small>
-          <a href="#" class="btn btn-lg btn-danger">Liked</a>
-        </div>
-        <div href="#" class="list-group-item list-group-item-action flex-column align-items-start">
-          <div class="d-flex w-100 justify-content-between">
-            <h5 class="mb-1">List group item heading</h5>
-            <small class="text-muted">3 days ago</small>
-          </div>
-          <p class="mb-1">Donec id elit non mi porta gravida at eget metus. Maecenas sed diam eget risus varius blandit.</p>
-          <small class="text-muted">Donec id elit non mi porta.</small>
-          <a href="#" class="btn btn-lg btn-default">Like</a>
-        </div>
-        <div href="#" class="list-group-item list-group-item-action flex-column align-items-start">
-          <div class="d-flex w-100 justify-content-between">
-            <h5 class="mb-1">List group item heading</h5>
-            <small class="text-muted">3 days ago</small>
-          </div>
-          <p class="mb-1">Donec id elit non mi porta gravida at eget metus. Maecenas sed diam eget risus varius blandit.</p>
-          <small class="text-muted">Donec id elit non mi porta.</small>
-          <a href="#" class="btn btn-lg btn-default">Like</a>
-        </div>
+<?php
+$sql = 'SELECT * FROM posts limit 100';
+$retval = mysqli_query( $conn, $sql );
+
+if(! $retval ) {
+  die('Could not get data: ' . mysql_error());
+}
+
+while($row = mysqli_fetch_assoc($retval)) {
+
+echo '<div href="#" class="list-group-item list-group-item-action flex-column align-items-start">
+<div class="d-flex w-100 justify-content-between">
+  <h5 class="mb-1">' . $row['Category'] . '</h5>
+  <small>Id: ' . $row['Id'] . '</small>
+</div>
+<p class="mb-1">' . $row['Content'] . '</p>
+<small>' . $row['From'] . '</small>
+<a href="#" class="btn btn-lg btn-danger">Liked</a>
+</div>';
+}
+?>
       </div>
     </main>
 
@@ -94,3 +111,6 @@
   </body>
 </html>
 
+<?php
+mysqli_close($conn);
+?>
